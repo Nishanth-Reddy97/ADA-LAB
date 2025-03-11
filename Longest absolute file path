@@ -1,0 +1,76 @@
+int counting(char c[][10000],int len){
+    int ans=0;
+    for(int i=0;i<len+1;i++){
+        //printf("%s\n",c[i]);
+        if(strlen(c[i])!=0){
+            ans+=strlen(c[i])+1;
+        }
+        
+    }
+    return ans-1;
+}
+
+int lengthLongestPath(char* input) {
+
+
+    char** file;
+    file = (char**)malloc(1000 * sizeof(char*));
+
+    for (int i = 0; i < 1000; i++) {
+        file[i] = (char*)malloc(10000 * sizeof(char));
+    }
+
+    int a=0;
+    int b=0;
+    char temp[10000];
+    for(int i=0;i<strlen(input);i++){
+        //printf("%c",input[i]);
+        if(input[i]=='\n'||i==strlen(input)-1){
+            if(i==strlen(input)-1){
+               temp[a]=input[i];
+                a++;
+            }
+
+            temp[a] = '\0';
+            memcpy(file[b],temp,strlen(temp)+1);
+            //printf("%d %s\n",b,file[b]);
+            b++;
+            temp[0] = '\0';
+            a=0;
+        }else{
+            temp[a]=input[i];
+            a++;
+        }
+    }
+
+    char count[1000][10000];
+    for (int i = 0; i < 1000; i++) {
+    memset(count[i], 0, sizeof(count[i]));
+}
+    int max=0;
+    for(int i=0;i<b;i++){
+        int t=0;
+        while(file[i][t]=='\t'){
+            t++;
+        }
+        for(int j=t;j<strlen(file[i]);j++){
+            count[t][j-t]=file[i][j];
+        }
+         count[t][strlen(file[i])-t]='\0';
+       //printf("%s\n",count[t]);
+        //printf("%d %s\n",i,count[t]);
+        for(int j=0;j<strlen(count[t]);j++){
+            if(count[t][j]=='.'){
+                if(counting(count,t)>max){
+                    max=counting(count,t);
+                    
+                }
+            }
+        }
+    }
+    for(int i = 0; i < 1000; i++) {
+        free(file[i]);
+    }
+    free(file); 
+    return  max;
+}
