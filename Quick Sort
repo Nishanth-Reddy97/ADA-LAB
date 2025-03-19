@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Function to swap two elements
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// Partition function to choose a pivot and partition the array
+int partition(int arr[], int low, int high) {
+    int pivot = arr[high];  // choosing the last element as pivot
+    int i = low - 1;        // index of smaller element
+
+    // Traverse through all elements, compare each one with the pivot
+    for (int j = low; j < high; j++) {
+        if (arr[j] < pivot) {
+            i++;
+            swap(&arr[i], &arr[j]);
+        }
+    }
+
+    // Place the pivot in the correct position
+    swap(&arr[i + 1], &arr[high]);
+    return (i + 1);
+}
+
+// Quick Sort function
+void quickSort(int arr[], int low, int high) {
+    if (low < high) {
+        // Partition the array into two parts
+        int pi = partition(arr, low, high);
+
+        // Recursively sort the two parts
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+int main() {
+    int N;
+
+    // Input the number of elements
+    printf("Enter the number of elements: ");
+    scanf("%d", &N);
+
+    int arr[N];
+
+    // Input the elements
+    printf("Enter the elements: ");
+    for (int i = 0; i < N; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    // Start timing
+    clock_t start_time = clock();
+
+    // Call the quickSort function
+    quickSort(arr, 0, N - 1);
+
+    // End timing
+    clock_t end_time = clock();
+
+    // Calculate the time taken in seconds
+    double time_taken = ((double)(end_time - start_time)) / CLOCKS_PER_SEC;
+
+    // Output the sorted array
+    printf("Sorted array: ");
+    for (int i = 0; i < N; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+
+    // Output the time taken for sorting
+    printf("Time taken for sorting: %f seconds\n", time_taken);
+
+    return 0;
+}
