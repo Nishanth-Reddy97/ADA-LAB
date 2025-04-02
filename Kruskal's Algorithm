@@ -1,0 +1,113 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure to represent an edge
+typedef struct {
+    int u, v, weight;
+} Edge;
+
+// Structure to represent a subset for union-find
+typedef struct {
+    int parent;
+    int rank;
+} Subset;
+
+// Function to compare two edges, used for sorting
+int compareEdges(const void *a, const void *b) {
+    return ((Edge*)a)->weight - ((Edge*)b)->weight;
+}
+
+// Find function with path compression
+int find(Subset subsets[], int i) {
+    if (subsets[i].parent != i) {
+        subsets[i].parent = find(subsets, subsets[i].parent); // Path compression
+    }
+    return subsets[i].parent;
+}
+
+// Union function by rank
+void unionSets(Subset subsets[], int x, int y) {
+    int xroot = find(subsets, x);
+    int yroot = find(subsets, y);
+
+    if (xroot != yroot) {
+        // Union by rank
+        if (subsets[xroot].rank < subsets[yroot].rank) {
+            subsets[xroot].parent = yroot;
+        } else if (subsets[xroot].rank > subsets[yroot].rank) {
+            subsets[yroot].parent = xroot;
+        } else {
+            subsets[yroot].parent = xroot;
+            subsets[xroot].rank++;
+        }
+    }
+}
+
+// Kruskal's algorithm to find MST
+void kruskalMST(Edge edges[], int V, int E) {
+    // Step 1: Sort all edges in non-decreasing order of their weight
+    qsort(edges, E, sizeof(Edge), compareEdges);
+
+    // Allocate memory for creating V subsets
+    Subset *subsets = (Subset*)malloc(V * sizeof(Subset));
+
+    // Initialize subsets
+    for (int v = 0; v < V; v++) {
+        subsets[v].parent = v;
+        subsets[v].rank = 0;
+    }
+
+    // Step 2: Pick edges one by one and apply union-find
+    int mstWeight = 0;  // Total weight of MST
+    printf("Edges in the Minimum Spanning Tree:\n");
+    for (int i = 0, e = 0; e < V - 1 && i < E; i++) {
+        // Find the vertices of the current edge
+        int u = edges[i].u;
+        int v = edges[i].v;
+
+        // Find the roots of the sets to which u and v belong
+        int root_u = find(subsets, u);
+        int root_v = find(subsets, v);
+
+        // If including this edge does not form a cycle, include it in the result
+        if (root_u != root_v) {
+            printf("%d - %d \t %d\n", u, v, edges[i].weight);
+            mstWeight += edges[i].weight;
+            unionSets(subsets, root_u, root_v);
+            e++;
+        }
+    }
+
+    // Print total weight of MST
+    printf("Total weight of MST: %d\n", mstWeight);
+
+    // Free allocated memory
+    free(subsets);
+}
+
+int main() {
+    int V, E;
+
+    // Input number of vertices and edges
+    printf("Enter the number of vertices: ");
+    scanf("%d", &V);
+    printf("Enter the number of edges: ");
+    scanf("%d", &E);
+
+    // Array to store the edges
+    Edge *edges = (Edge*)malloc(E * sizeof(Edge));
+
+    // Input all edges (u, v, weight)
+    printf("Enter the edges (u, v, weight):\n");
+    for (int i = 0; i < E; i++) {
+        scanf("%d %d %d", &edges[i].u, &edges[i].v, &edges[i].weight);
+    }
+
+    // Call Kruskal's algorithm
+    kruskalMST(edges, V, E);
+
+    // Free allocated memory for edges
+    free(edges);
+
+    return 0;
+}
